@@ -1,11 +1,27 @@
 name: resuable workflow
 on: 
     workflow_call:
+        inputs:
+            MONGO_URI:
+                required: true
+                type: string
+            environment:
+                required: true
+                type: string
+            kubectl_version:
+                required: false
+                type: string
+                default: 'latest'
+            k8s_mainfest_dir:
+                required: true
+                type: string
+                default: 'kubernetes'
+            
 
 jobs:
     reuse_deploy:
         environment: 
-            name: development
+            name: ${{ inputs.environment }}
             url: ${{ steps.set-app-url.outputs.APP_URL }}
 
         outputs: 
@@ -15,7 +31,7 @@ jobs:
             id-token: write
             contents: read
 
-        name: Deploy to Development Environment
+        name: Deploy to ${{inputs.environment}} Environment
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
@@ -24,7 +40,7 @@ jobs:
             - name: install kubectl cli
               uses: azure/setup-kubectl@v1
               with:
-                version: 'latest'
+                version: ${{ inputs.kubectl_version }}
             
 
             - uses: azure/login@v2
@@ -38,11 +54,13 @@ jobs:
               with:
                 resource-group: 'CICD_testing_group'
                 cluster-name: 'CICD_testing'
+
             - name: fetch kubernetes cluster details
               run: |
                 kubectl version
                 echo ----------------------------
                 kubectl get nodes
+
             - name: saving ingress ip to env variable
               run: |
                 echo "saving ingress ip to env variable"
@@ -54,7 +72,7 @@ jobs:
               with:
                 tokenPrefix: '_{_'
                 tokenSuffix: '_}_'
-                files: '["kubernetes/development/*.yaml"]'
+                files: '["${{inputs.k8s_mainfest_dir}}/${{inputs.environment}}/*.yaml"]'
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}
                 REPLICAS: ${{ vars.REPLICAS }}
@@ -64,13 +82,13 @@ jobs:
             - name: check token replacement
               run: |
                 echo "checking token replacement"
-                cat kubernetes/development/*.yaml
+                cat ${{inputs.k8s_mainfest_dir}}/${{inputs.environment}}/*.yaml
 
             - name: create mongo secret
               run: |
                 echo "creating mongo secret"
                 kubectl create secret generic mongo-db-creds \
-                --from-literal=MONGO_URI=${{env.MONGO_URI}} \
+                --from-literal=MONGO_URI=${{inputs.MONGO_URI}} \
                 --from-literal=MONGO_USERNAME=${{vars.MONGO_USERNAME}} \
                 --from-literal=MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} \
                 -n ${{ vars.NAMESPACE }} \
@@ -78,11 +96,10 @@ jobs:
                 --dry-run=client \
                 -o yaml | kubectl apply -f -
                 
-
-            - name: deploy to dev environment
+            - name: deploy to ${{inputs.environment}}  environment
               run: |
                 echo "deploying to dev environment"
-                kubectl apply -f kubernetes/development 
+                kubectl apply -f ${{inputs.k8s_mainfest_dir}}/${{inputs.environment}} 
             
             - name: set app ingress host url 
               id: set-app-url
