@@ -132,9 +132,11 @@ jobs:
         - name: merge test results
           run: |
             echo "merging test results"
+            ls -lah 
             mkdir -p merged-results
             mv test-results.xml merged-results/test-results.xml
-            mv coverage merged-results/coverage
+            mv code* merged-results/coverage
+            ls -lah
         
         - name: upload to AWS S3 
           run: |
