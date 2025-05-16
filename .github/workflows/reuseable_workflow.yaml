@@ -16,6 +16,12 @@ on:
                 required: true
                 type: string
                 default: 'kubernetes'
+        
+        outputs:
+            app_url:
+                description: 'The URL of the deployed application'
+                value: ${{ jobs.reuse_deploy.outputs.app_url }}
+            
             
 
 jobs:

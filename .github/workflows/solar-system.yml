@@ -187,12 +187,10 @@ jobs:
             
     dev-integeration-testing:
       if: contains(github.ref, 'feature/')
-      name: dev Integration Testing
+      name: development Integration Testing
       runs-on: ubuntu-latest
       needs: [dev-deploy]
       steps:
-        
-
         - name: testing using curl and jq
           continue-on-error: true
           env:
@@ -208,13 +206,13 @@ jobs:
       secrets: inherit
       with:
         MONGO_URI: ${{ vars.MONGO_URI }}
-        environment: development
+        environment: production
         k8s_mainfest_dir: kubernetes
         kubectl_version: latest
             
     prod-integeration-testing:
       if: github.ref == 'refs/heads/main'
-      name: dev Integration Testing
+      name: production Integration Testing
       runs-on: ubuntu-latest
       needs: [prod-deploy]
       steps:
