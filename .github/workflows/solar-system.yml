@@ -113,6 +113,35 @@ jobs:
               path: coverage
               retention-days: 5  #store the artifact for 5 days 
 
+    report_s3:
+      name: AWS s3 - upload reports
+      runs-on: ubuntu-latest
+      needs: [unit-testing, code-coverage]
+      steps:
+        - name: download test results
+          uses: actions/download-artifact@v4
+          with:
+            name: Mocha-Test-Result20-ubuntu-latest
+          
+        - name: download code coverage results
+        
+          uses: actions/download-artifact@v4
+          with:
+            name: code coverage results
+        
+        - name: merge test results
+          run: |
+            echo "merging test results"
+            mkdir -p merged-results
+            mv test-results.xml merged-results/test-results.xml
+            mv coverage merged-results/coverage
+        
+        - name: upload to AWS S3 
+          run: |
+            echo "uploading to AWS S3"
+            
+        
+
     docker:
 
       name: Docker Build and Push
@@ -182,9 +211,7 @@ jobs:
         environment: development
         k8s_mainfest_dir: kubernetes
         kubectl_version: latest
-
-        
-            
+   
     dev-integeration-testing:
       if: contains(github.ref, 'feature/')
       name: development Integration Testing
