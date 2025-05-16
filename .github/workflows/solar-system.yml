@@ -135,7 +135,7 @@ jobs:
             ls -lah 
             mkdir -p merged-results
             mv test-results.xml merged-results/test-results.xml
-            mv cobertura-coverage merged-results/coverage
+            mv cobertura-coverage.xml merged-results/coverage
             ls -lah
         
         - name: upload to AWS S3 
