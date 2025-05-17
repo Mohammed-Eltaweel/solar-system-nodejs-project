@@ -1,0 +1,19 @@
+name: 'NPM custom action'
+description: 'installing and chaching npm packages'
+inputs:
+    path_of_folder:
+        description: 'path of the folder where the chache is located'
+        required: true
+        default: 'node_modules'
+runs:
+  using: 'composite'
+  steps:
+    - name: chaching the dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.path_of_folder }}
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install Dependencies
+      shell: bash
+      run: npm install

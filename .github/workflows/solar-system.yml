@@ -48,13 +48,9 @@ jobs:
             node-version: ${{ matrix.node-version }}
 
         - name: chaching the dependencies
-          uses: actions/cache@v4
+          uses: ./.github/workflows/custom-actions/npm-actions
           with:
-            path: node_modules
-            key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-
-        - name: Install Dependencies
-          run: npm install
+            path_of_folder: node_modules
     
         - name: Unit Testing
           run: npm test
@@ -93,13 +89,10 @@ jobs:
           #     node-version: 18
           
           - name: chaching the dependencies
-            uses: actions/cache@v4
+            uses: ./.github/workflows/custom-actions/npm-actions
             with:
-              path: node_modules
-              key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-
-          - name: Install Dependencies
-            run: npm install
+              path_of_folder: node_modules
+            
       
           - name: Unit Testing
             continue-on-error: true
@@ -142,8 +135,6 @@ jobs:
           run: |
             echo "uploading to AWS S3"
             
-        
-
     docker:
 
       name: Docker Build and Push
