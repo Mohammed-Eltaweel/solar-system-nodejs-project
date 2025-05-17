@@ -47,7 +47,7 @@ jobs:
           with:
             node-version: ${{ matrix.node-version }}
 
-        - name: chaching the dependencies
+        - name: compose action - chaching and installing the dependencies
           uses: ./.github/workflows/custom-actions/npm-actions
           with:
             path_of_folder: node_modules
@@ -88,7 +88,7 @@ jobs:
           #   with:
           #     node-version: 18
           
-          - name: chaching the dependencies
+          - name: compose action - chaching and installing the dependencies
             uses: ./.github/workflows/custom-actions/npm-actions
             with:
               path_of_folder: node_modules
